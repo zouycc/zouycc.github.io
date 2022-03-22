@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, maximum-scale=5, viewport-fit=cover">
     <title>函数式编程 | Ahser's Blog</title>
-    <meta name="description" content="FunctionalInterface我们把只定义了单方法的接口称之为FunctionalInterface，用注解@FunctionalInterface标记。例如，Callable接口： 1234@FunctionalInterfacepublic interface Callable&lt;V&gt; &amp;#123;    V call() throws Exception;&amp;#125; 支持">
+    <meta name="description" content="FunctionalInterface 我们把只定义了单方法的接口称之为FunctionalInterface，用注解@FunctionalInterface标记。例如，Callable接口： 1234@FunctionalInterfacepublic interface Callable&lt;V&gt; &amp;#123;    V call() throws Exception;&amp;#125; 支">
 <meta property="og:type" content="article">
 <meta property="og:title" content="函数式编程">
 <meta property="og:url" content="http://zouyc.xyz/2022/03/22/%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/index.html">
 <meta property="og:site_name" content="Ahser&#39;s Blog">
-<meta property="og:description" content="FunctionalInterface我们把只定义了单方法的接口称之为FunctionalInterface，用注解@FunctionalInterface标记。例如，Callable接口： 1234@FunctionalInterfacepublic interface Callable&lt;V&gt; &amp;#123;    V call() throws Exception;&amp;#125; 支持">
+<meta property="og:description" content="FunctionalInterface 我们把只定义了单方法的接口称之为FunctionalInterface，用注解@FunctionalInterface标记。例如，Callable接口： 1234@FunctionalInterfacepublic interface Callable&lt;V&gt; &amp;#123;    V call() throws Exception;&amp;#125; 支">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-03-22T05:59:45.000Z">
-<meta property="article:modified_time" content="2022-03-22T06:01:10.281Z">
+<meta property="article:modified_time" content="2022-03-22T06:43:55.825Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -41,21 +41,6 @@
     <body>
         <header class="header header-fixture">
     <div class="profile-search-wrap flex sm:block">
-        
-        
-        <div class="profile sm:text-center md:px-1 lg:px-3 sm:pb-4 sm:pt-6">
-            <a id="avatar" role="link" href="https://github.com/zouycc" class="inline-block lg:w-16 lg:h-16 w-8 h-8 m-2" target="_blank" rel="noopener" rel="noreferrer" >
-                <img src="https://www.gravatar.com/avatar/28172ca384828203ccd698a51f0d94d2?s=128" class="rounded-full" alt="avatar">
-            </a>
-            <h2 id="name" class="hidden lg:block">Asher</h2>
-            <h3 id="title" class="hidden xl:block">Student &amp; Coder</h3>
-            
-            <small id="location" class="hidden lg:block">
-                <i class="iconfont icon-map-icon"></i>
-                Sichuan, China
-            </small>
-            
-        </div>
         
         
 <div class="search flex-1 flex lg:inline-block sm:hidden lg:px-4 lg:mt-2 lg:mb-4 lg:w-full">
@@ -227,7 +212,7 @@
                 </span>
                 
     
-        <span class="post-wordcount" itemprop="wordCount">字数统计: 572(字)</span>
+        <span class="post-wordcount" itemprop="wordCount">字数统计: 574(字)</span>
     
     
         <span class="post-readcount" itemprop="timeRequired">阅读时长: 2(分)</span>
@@ -237,20 +222,20 @@
             </p>
         </header>
         <div class="marked-body article-body">
-            <h2 id="FunctionalInterface"><a href="#FunctionalInterface" class="headerlink" title="FunctionalInterface"></a>FunctionalInterface</h2><p>我们把只定义了单方法的接口称之为FunctionalInterface，用注解@FunctionalInterface标记。例如，Callable接口：</p>
+            <h1 id="FunctionalInterface">FunctionalInterface</h1>
+<p>我们把只定义了单方法的接口称之为FunctionalInterface，用注解@FunctionalInterface标记。例如，Callable接口：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Callable</span>&lt;V&gt; &#123;</span><br><span class="line">    V <span class="title function_">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>支持函数式编程的都可以使用Lambda表达式</p>
-<h2 id="Lambda表达式"><a href="#Lambda表达式" class="headerlink" title="Lambda表达式"></a>Lambda表达式</h2><p>当我们用Arrays.sort()排序时，可以传入一个Comparator实例，并采用匿名类的方式来实现：</p>
+<h1 id="Lambda表达式">Lambda表达式</h1>
+<p>当我们用Arrays.sort()排序时，可以传入一个Comparator实例，并采用匿名类的方式来实现：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String[] array = ...</span><br><span class="line">Arrays.sort(array, <span class="keyword">new</span> <span class="title class_">Comparator</span>&lt;String&gt;() &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(String s1, String s2)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> s1.compareTo(s2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
 <p>但是这种写法还是挺繁琐的，所以从JDK8开始，我们可以用Lambda表达式来替代这种繁琐的写法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String[] array = ...</span><br><span class="line">Arrays.sort(array, (s1, s2) -&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> s1.compareTo(s2);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
 <p>使用Lambda只需要写出方法的定义，参数类型可以省略，编译器会自动推断出String类型，-&gt; { … }表示方法体，如果只有一行return代码，还可以更加简洁：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Arrays.sort(array, (s1, s2) -&gt; s1.compareTo(s2));</span><br></pre></td></tr></table></figure>
-
 <p>返回值的类型也是由编译器自动推断的，这里推断出的返回值是int，因此，只要返回int，编译器就不会报错。</p>
-<h2 id="方法引用"><a href="#方法引用" class="headerlink" title="方法引用"></a>方法引用</h2><p>除了使用Lambda之外，还可以直接传入方法引用：</p>
+<h1 id="方法引用">方法引用</h1>
+<p>除了使用Lambda之外，还可以直接传入方法引用：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    String[] array = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;Apple&quot;</span>, <span class="string">&quot;Orange&quot;</span>, <span class="string">&quot;Banana&quot;</span>, <span class="string">&quot;Lemon&quot;</span>&#125;;</span><br><span class="line">    Arrays.sort(array, Main::cmp);</span><br><span class="line">    System.out.println(String.join(<span class="string">&quot;, &quot;</span>, array));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="type">int</span> <span class="title function_">cmp</span><span class="params">(String s1, String s2)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> s1.compareTo(s2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面的代码是啥意思？可以看到Arrays.sort需传入一个数组和Comparator接口，在Comparator中有个方法int compare(T o1, T o2)，我们自己定义的方法cmp和compare这个方法的方法签名一致，即方法参数和返回类型相同，就可以直接使用方法引用，再看一个例子：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    String[] array = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;Apple&quot;</span>, <span class="string">&quot;Orange&quot;</span>, <span class="string">&quot;Banana&quot;</span>, <span class="string">&quot;Lemon&quot;</span>&#125;;</span><br><span class="line">    Arrays.sort(array, String::compareTo);</span><br><span class="line">    System.out.println(String.join(<span class="string">&quot;, &quot;</span>, array));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -284,7 +269,7 @@
     <div class="toc-sidebar">
         <nav id="toc" class="article-toc">
             <h3 class="toc-title">文章目录</h3>
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#FunctionalInterface"><span class="toc-number">1.</span> <span class="toc-text">FunctionalInterface</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">Lambda表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">方法引用</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#FunctionalInterface"><span class="toc-number">1.</span> <span class="toc-text">FunctionalInterface</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">Lambda表达式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">方法引用</span></a></li></ol>
         </nav>
     </div>
 </aside>
