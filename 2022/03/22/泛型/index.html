@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html  lang="zh-CN" >
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+    <title>泛型 | Ahser's Blog</title>
+    <meta name="description" content="什么是泛型 泛型就是编写模板代码来适应类型，好处就是不必强制转型，通过编译器对类型进行检查 1List&lt;String&gt; list &#x3D; new ArrayList&lt;&gt;(); 这就是泛型，集合限定了元素必须为String类型，否则报错 泛型接口 除了在集合中使用泛型，有许多接口也用到了泛型，比如 Comparable&lt;T&gt; 可以直接对String类型的数组进行排序，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="泛型">
+<meta property="og:url" content="http://zouyc.xyz/2022/03/22/%E6%B3%9B%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Ahser&#39;s Blog">
+<meta property="og:description" content="什么是泛型 泛型就是编写模板代码来适应类型，好处就是不必强制转型，通过编译器对类型进行检查 1List&lt;String&gt; list &#x3D; new ArrayList&lt;&gt;(); 这就是泛型，集合限定了元素必须为String类型，否则报错 泛型接口 除了在集合中使用泛型，有许多接口也用到了泛型，比如 Comparable&lt;T&gt; 可以直接对String类型的数组进行排序，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/image-20220322163550707.png">
+<meta property="article:published_time" content="2022-03-22T06:53:39.000Z">
+<meta property="article:modified_time" content="2022-03-22T09:29:14.953Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/image-20220322163550707.png">
+
+    
+    <link rel="icon" href="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/favicon.ico" type="image/x-icon">
+
+    
+<link rel="stylesheet" href="/css/common.min.css">
+
+
+
+    
+    
+    
+    
+        <link href="//cdn.jsdelivr.net/npm/lightgallery.js@1.1.3/dist/css/lightgallery.min.css" rel="stylesheet">
+    
+    
+    
+<link rel="stylesheet" href="/css/iconfont.min.css">
+
+    
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+    <body>
+        <header class="header header-fixture">
+    <div class="profile-search-wrap flex sm:block">
+        
+        
+<div class="search flex-1 flex lg:inline-block sm:hidden lg:px-4 lg:mt-2 lg:mb-4 lg:w-full">
+    <form id="search-form" class="my-auto flex-1 lg:border lg:border-solid lg:border-gray-200">
+        <div class="input-group table bg-gray-100 lg:bg-white w-full">
+            <input id="search-input" type="text" placeholder="搜索" class="inline-block w-full bg-gray-100 lg:bg-white">
+            <span class="table-cell">
+                <button name="search tigger button" disabled>
+                    <i class="iconfont icon-search m-2"></i>
+                </button>
+            </span>
+        </div>
+    </form>
+        
+<div id="content-json" data-placeholder="搜索" class="invisible hidden">/content.json</div>
+<script id="search-teamplate" type="text/html" data-path="/content.json">
+    <div>
+        <div class="search-header bg-gray-400">
+            <input id="actual-search-input" model="keyword" ref="input" class="inline-block w-full h-10 px-2 py-1" placeholder="搜索" type="text">
+        </div>
+        <div class="search-result bg-gray-200">
+            {{#each searchPosts}}
+            <a href="/{{ path }}" class="result-item block px-2 pb-3 mb-1 pt-1 hover:bg-indigo-100">
+                <i class="iconfont icon-file"></i>
+                <h1 class="result-title inline font-medium text-lg">{{ title }}</h1>
+                <p class="result-content text-gray-600 text-sm">{{{ text }}}</p>
+            </a>
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+</div>
+
+
+        <button name="menu toogle button" id="menu-toggle-btn" class="block sm:hidden p-3" role="button" aria-expanded="false">
+            <i class="iconfont icon-hamburger"></i>
+        </button>
+    </div>
+    <nav id="menu-nav" class="hidden sm:flex flex-col">
+        
+        
+            <div class="menu-item menu-home" role="menuitem">
+                <a href="/.">
+                    <i class="iconfont icon-home" aria-hidden="true"></i>
+                    <span class="menu-title">首页</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-archives" role="menuitem">
+                <a href="/archives">
+                    <i class="iconfont icon-archive" aria-hidden="true"></i>
+                    <span class="menu-title">归档</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-categories" role="menuitem">
+                <a href="/categories">
+                    <i class="iconfont icon-folder" aria-hidden="true"></i>
+                    <span class="menu-title">分类</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-tags" role="menuitem">
+                <a href="/tags">
+                    <i class="iconfont icon-tag" aria-hidden="true"></i>
+                    <span class="menu-title">标签</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-links" role="menuitem">
+                <a href="/links">
+                    <i class="iconfont icon-friend" aria-hidden="true"></i>
+                    <span class="menu-title">友链</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-about" role="menuitem">
+                <a href="/about">
+                    <i class="iconfont icon-cup" aria-hidden="true"></i>
+                    <span class="menu-title">关于</span>
+                </a>
+            </div>
+        
+        
+<div class="social-links flex sm:flex-col lg:hidden mt-5">
+    
+        <span class="social-item text-center">
+            <a target="_blank" rel="noopener" href="https://github.com/zouycc">
+                <i class="iconfont social-icon icon-github"></i>
+                <span class="menu-title hidden lg:inline">menu.github</span>
+            </a>
+        </span>
+    
+        <span class="social-item text-center">
+            <a target="_blank" rel="noopener" href="https://t.me/zouyc">
+                <i class="iconfont social-icon icon-telegram"></i>
+                <span class="menu-title hidden lg:inline">menu.telegram</span>
+            </a>
+        </span>
+    
+        <span class="social-item text-center">
+            <a target="_blank" rel="noopener" href="https://twitter.com/zouycc">
+                <i class="iconfont social-icon icon-twitter"></i>
+                <span class="menu-title hidden lg:inline">menu.twitter</span>
+            </a>
+        </span>
+    
+        <span class="social-item text-center">
+            <a href="/atom.xml">
+                <i class="iconfont social-icon icon-rss"></i>
+                <span class="menu-title hidden lg:inline">menu.rss</span>
+            </a>
+        </span>
+    
+</div>
+
+
+    </nav>
+</header>
+
+        <section class="main-section">
+            
+    <main class="flex-1 px-4 py-14 md:px-5 lg:px-8 lg:py-4 relative min-h-screen">
+    
+
+    <article class="content article article-archives article-type-list" itemscope="">
+        <header class="article-header">
+            
+    
+        <h1 class="article-title text-lg" itemprop="name">
+            泛型
+        </h1>
+    
+
+
+
+            <p class="article-meta mb-3 text-xs">
+                <span class="article-date">
+    <i class="iconfont icon-calendar-check"></i>
+	<a href="/2022/03/22/%E6%B3%9B%E5%9E%8B/" class="article-date">
+	  <time datetime="2022-03-22T06:53:39.000Z" itemprop="datePublished">3月 22</time>
+	</a>
+</span>
+
+                
+    <span class="article-category">
+    <i class="iconfont icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
+  </span>
+
+
+                
+    <span class="article-tags">
+    <i class="iconfont icon-tag"></i>
+    <a class="article-tag-none-link" href="/tags/Java/" rel="tag">Java</a>
+  </span>
+
+
+                <span class="_partial/post-comment"><i class="icon icon-comment"></i>
+                    <a href="/2022/03/22/%E6%B3%9B%E5%9E%8B/#comments" class="article-comment-link">
+                        评论
+                    </a>
+                </span>
+                
+    
+        <span class="post-wordcount" itemprop="wordCount">字数统计: 1.3k(字)</span>
+    
+    
+        <span class="post-readcount" itemprop="timeRequired">阅读时长: 5(分)</span>
+    
+
+
+            </p>
+        </header>
+        <div class="marked-body article-body">
+            <h2 id="什么是泛型">什么是泛型</h2>
+<p>泛型就是编写模板代码来适应类型，好处就是不必强制转型，通过编译器对类型进行检查</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<p>这就是泛型，集合限定了元素必须为<code>String</code>类型，否则报错</p>
+<h2 id="泛型接口">泛型接口</h2>
+<p>除了在集合中使用泛型，有许多接口也用到了泛型，比如<code> Comparable&lt;T&gt;</code></p>
+<p>可以直接对<code>String</code>类型的数组进行排序，因为String实现了<code>Comparable</code>接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">String</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span>, Comparable&lt;String&gt;, CharSequence</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String[] s = &#123;<span class="string">&quot;B&quot;</span>, <span class="string">&quot;A&quot;</span>, <span class="string">&quot;C&quot;</span>&#125;;</span><br><span class="line">Arrays.sort(s);</span><br><span class="line">System.out.println(Arrays.toString(s));</span><br></pre></td></tr></table></figure>
+<p>如何实习自定义类的排序呢？实现<code>Comparable</code>接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Person</span> <span class="keyword">implements</span> <span class="title class_">Comparable</span>&lt;Person&gt;&#123;</span><br><span class="line">    String name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Person</span><span class="params">(String name, <span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compareTo</span><span class="params">(Person o)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.getAge()-o.getAge();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Person[] people = &#123;<span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;lucy&quot;</span>, <span class="number">21</span>), <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;mary&quot;</span>, <span class="number">19</span>), <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Mali&quot;</span>, <span class="number">33</span>)&#125;;</span><br><span class="line">System.out.println(<span class="string">&quot;排序前&quot;</span>);</span><br><span class="line"><span class="keyword">for</span> (Person person : people) &#123;</span><br><span class="line">    System.out.println(person.getName() + <span class="string">&quot; : &quot;</span> + person.getAge());</span><br><span class="line">&#125;</span><br><span class="line">Arrays.sort(people);</span><br><span class="line">System.out.println(<span class="string">&quot;排序后&quot;</span>);</span><br><span class="line"><span class="keyword">for</span> (Person person : people) &#123;</span><br><span class="line">    System.out.println(person.getName() + <span class="string">&quot; : &quot;</span> + person.getAge());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过控制台输出就可以发现<code>Person</code>数组已经按照年龄进行了升序排序</p>
+<h2 id="编写泛型">编写泛型</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Pair</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> T first;</span><br><span class="line">    <span class="keyword">private</span> T last;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Pair</span><span class="params">(T first, T last)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.first = first;</span><br><span class="line">        <span class="built_in">this</span>.last = last;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">getFirst</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">getLast</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> last;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意静态方法不能使用<code>&lt;T&gt;</code>，应该与实例类型的泛型区分开：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;K&gt; Pair&lt;K&gt; <span class="title function_">create</span><span class="params">(K first, K last)</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Pair</span>&lt;K&gt;(first, last);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="擦拭法">擦拭法</h2>
+<p>虚拟机对泛型是一无所知的，视所有泛型为<code>Object</code>，在需要转型的时候编译器会根据T类型自动为我们安全的强制转型</p>
+<p>这就造成了使用泛型时一些的局限</p>
+<ol>
+<li>不能是基本类型，因为<code>Object</code>无法持有基本类型</li>
+<li>在获取<code>class</code>时因为擦拭法导致取到的对象是同一个对象</li>
+<li>也无法判断泛型的类型</li>
+<li>不能实例化泛型</li>
+</ol>
+<p>可以借助<code>Class&lt;T&gt;</code>来实例化泛型对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">Pair</span><span class="params">(Class&lt;T&gt; clazz)</span> &#123;</span><br><span class="line">    first = clazz.newInstance();</span><br><span class="line">    last = clazz.newInstance();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="泛型继承">泛型继承</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IntPair</span> <span class="keyword">extends</span> <span class="title class_">Pair</span>&lt;Integer&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IntPair</span><span class="params">(Integer first, Integer last)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(first, last);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>子类获取父类的泛型类型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    Class&lt;IntPair&gt; clazz = IntPair.class;</span><br><span class="line">    <span class="type">Type</span> <span class="variable">type</span> <span class="operator">=</span> clazz.getGenericSuperclass();	<span class="comment">// 获得带有泛型的父类</span></span><br><span class="line">    <span class="keyword">if</span> (type <span class="keyword">instanceof</span> ParameterizedType)&#123;		<span class="comment">// 判断是否为参数化类型，即泛型</span></span><br><span class="line">        <span class="type">ParameterizedType</span> <span class="variable">p</span> <span class="operator">=</span> (ParameterizedType) type;</span><br><span class="line">        Type[] types = p.getActualTypeArguments();	<span class="comment">// 父类可能有多个泛型</span></span><br><span class="line">        <span class="type">Type</span> <span class="variable">firstType</span> <span class="operator">=</span> types[<span class="number">0</span>];	<span class="comment">// 取第一个泛型</span></span><br><span class="line">        System.out.println(firstType.getTypeName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="extends">extends</h2>
+<p>在平时的继承关系中<code>Integer</code>是<code>Number</code>的子类，但是在泛型中<code>Pair&lt;Integer&gt;</code>不是<code>Pair&lt;Number&gt;</code>的子类</p>
+<p>比如我们定义了一个方法，限定了传入的参数为<code>Pair&lt;Number&gt;</code>类型，如果传入<code>Pair&lt;Integer&gt;</code>就会报错</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">int</span> <span class="title function_">add</span><span class="params">(Pair&lt;Number&gt; p)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> p.getFirst().intValue() + p.getLast().intValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    Pair&lt;Integer&gt; p = <span class="keyword">new</span> <span class="title class_">Pair</span>&lt;&gt;(<span class="number">3</span>,<span class="number">5</span>);</span><br><span class="line">    Pair.add(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/image-20220322163550707.png" alt="image-20220322163550707"></p>
+<p>那如何传入<code>Integer</code>呢？这就需要用到<code>extends</code>通配符来解决了，改造一下那个方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">int</span> <span class="title function_">add</span><span class="params">(Pair&lt;? extends Number&gt; p)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> p.getFirst().intValue() + p.getLast().intValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种通配符被称为上界通配符，把泛型类型T的上界限定在了<code>Number</code></p>
+<p><strong>使用extends须知：</strong></p>
+<p>在<code>add()</code>中是不能获取<code>Integer</code>的引用的，下面代码是无法通过编译的，要求你强制转型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">first</span> <span class="operator">=</span> p.getFirst();</span><br></pre></td></tr></table></figure>
+<p>因为我们虽然限定了泛型的上界为<code>Number</code>，但是传入的具体类型到底是<code>Integer</code>还是其他<code>Number</code>的子类是不知道的，编译器只能确定一定是<code>Number</code>的子类</p>
+<p>也无法传递<code>Number</code>的子类型给对象的<code>set()</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p.setFirst(<span class="keyword">new</span> <span class="title class_">Integer</span>(p.getFirst().intValue() + <span class="number">100</span>));</span><br></pre></td></tr></table></figure>
+<p>总结一下：</p>
+<ol>
+<li>允许调用<code>get()</code>获取<code>Number</code>的引用</li>
+<li>不允许调用<code>set(? extends Number)</code>传入任何Number的引用</li>
+</ol>
+<h2 id="super">super</h2>
+<p>正好和<code>Number</code>相反，传入的是<code>Integer</code>以及它的父类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Pair&lt;? <span class="built_in">super</span> Integer&gt; p</span><br></pre></td></tr></table></figure>
+<p><strong>使用super须知：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    Pair&lt;Integer&gt; p = <span class="keyword">new</span> <span class="title class_">Pair</span>&lt;&gt;(<span class="number">3</span>,<span class="number">5</span>);</span><br><span class="line">    Pair.add(p,<span class="number">5</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(Pair&lt;? <span class="built_in">super</span> Integer&gt; p,Integer n)</span> &#123;</span><br><span class="line">    p.setFirst(n);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码是可以被正常编译的，因为限定了下界为<code>Integer</code>，无论传入<code>Integer</code>还是它的父类都是可以的</p>
+<p>但是无法使用Integer接收<code>get()</code>的返回值，因为无法确定具体返回的是<code>Integer</code>还是它的父类，唯一可以接收的是<code>Object</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(Pair&lt;? <span class="built_in">super</span> Integer&gt; p,Integer n)</span> &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">first</span> <span class="operator">=</span> p.getFirst();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以对比<code>extends</code>和<code>super</code>可以发现：</p>
+<p><code>&lt;? extends Number&gt;</code>可读不可写</p>
+<p><code>&lt;? super Integer&gt;</code>可写不可读</p>
+<h2 id="补充">补充</h2>
+<p>声明泛型数组时，不能用<code>new</code>操作符创建数组，需强制转型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Pair&lt;Integer&gt;[] pairs = (Pair&lt;Integer&gt;[]) <span class="keyword">new</span> <span class="title class_">Pair</span>[<span class="number">2</span>];</span><br></pre></td></tr></table></figure>
+
+        </div>
+        
+<blockquote class="copyright">
+    <p><strong>本文链接 : </strong><a class="permalink" href="http://zouyc.xyz/2022/03/22/%E6%B3%9B%E5%9E%8B/">http://zouyc.xyz/2022/03/22/泛型/</a></p>
+    <p><strong>本博客所有文章除特别声明外，均采用 CC BY 4.0 CN协议 许可协议。转载请注明出处！</strong></p>
+</blockquote>
+
+
+    </article>
+    
+    <section id="comments">
+        
+            <div id="vcomments"></div>
+        
+    </section>
+
+
+    
+
+</main>
+
+
+<aside style="" id="sidebar" class="aside aside-fixture">
+    <div class="toc-sidebar">
+        <nav id="toc" class="article-toc">
+            <h3 class="toc-title">文章目录</h3>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%B3%9B%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">什么是泛型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.</span> <span class="toc-text">泛型接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E5%86%99%E6%B3%9B%E5%9E%8B"><span class="toc-number">3.</span> <span class="toc-text">编写泛型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%93%A6%E6%8B%AD%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">擦拭法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%BB%A7%E6%89%BF"><span class="toc-number">5.</span> <span class="toc-text">泛型继承</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#extends"><span class="toc-number">6.</span> <span class="toc-text">extends</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#super"><span class="toc-number">7.</span> <span class="toc-text">super</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A1%A5%E5%85%85"><span class="toc-number">8.</span> <span class="toc-text">补充</span></a></li></ol>
+        </nav>
+    </div>
+</aside>
+
+
+
+
+
+        </section>
+        <footer class="hidden lg:block fixed bottom-0 left-0 sm:w-1/12 lg:w-1/6 bg-gray-100 z-40">
+    
+    <div class="footer-social-links">
+        
+            <a target="_blank" rel="noopener" href="https://github.com/zouycc">
+                <i class="iconfont icon-github"></i>
+            </a>
+        
+            <a target="_blank" rel="noopener" href="https://t.me/zouyc">
+                <i class="iconfont icon-telegram"></i>
+            </a>
+        
+            <a target="_blank" rel="noopener" href="https://twitter.com/zouycc">
+                <i class="iconfont icon-twitter"></i>
+            </a>
+        
+            <a href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+            </a>
+        
+    </div>
+    
+    
+</footer>
+
+        <div id="mask" class="hidden mask fixed inset-0 bg-gray-900 opacity-75 z-40"></div>
+        <div id="search-view-container" class="hidden shadow-xl"></div>
+        
+<script src="/js/dom-event.min.js"></script>
+
+
+
+<script src="/js/local-search.min.js"></script>
+
+
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/valine"></script>
+<script type="text/javascript">
+var GUEST = ['nick', 'mail', 'link'];
+var meta = 'nick,mail,link';
+meta = meta.split(',').filter(function(item) {
+  return GUEST.indexOf(item) > -1;
+});
+new Valine({
+  el: '#vcomments',
+  verify: false,
+  notify: false,
+  appId: '6LSSFCD2zaCRzgT8udCAT3uk-gzGzoHsz',
+  appKey: 'jzEmb9iYxpy3j79AIINlLenC',
+  placeholder: 'Just go go',
+  avatar: 'mm',
+  meta: meta,
+  pageSize: '10' || 10,
+  visitor: false
+});
+</script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/lightgallery.js@1.1.3/dist/js/lightgallery.min.js"></script>
+    
+<script src="/js/light-gallery.min.js"></script>
+
+
+
+
+
+
+    </body>
+</html>
