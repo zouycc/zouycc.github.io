@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html  lang="zh-CN" >
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+    <title>MySQL索引和锁 | Ahser's Blog</title>
+    <meta name="description" content="索引 在表数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式指向数据， 这样就可以在这些数据结构上实现高级查找算法，这种数据结构就是索引。  功能分类  普通索引： 最基本的索引，它没有任何限制。 唯一索引：索引列的值必须唯一，但允许有空值。如果是组合索引，则列值组合必须唯一。 主键索引：一种特殊的唯一索引，不允许有空值。一般在建表时同时创建主键索引。 组合索引：顾名思">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL索引和锁">
+<meta property="og:url" content="http://zouyc.cn/2022/04/04/MySQL%E7%B4%A2%E5%BC%95%E5%92%8C%E9%94%81/index.html">
+<meta property="og:site_name" content="Ahser&#39;s Blog">
+<meta property="og:description" content="索引 在表数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式指向数据， 这样就可以在这些数据结构上实现高级查找算法，这种数据结构就是索引。  功能分类  普通索引： 最基本的索引，它没有任何限制。 唯一索引：索引列的值必须唯一，但允许有空值。如果是组合索引，则列值组合必须唯一。 主键索引：一种特殊的唯一索引，不允许有空值。一般在建表时同时创建主键索引。 组合索引：顾名思">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/05.png">
+<meta property="og:image" content="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/06.png">
+<meta property="article:published_time" content="2022-04-04T07:34:11.000Z">
+<meta property="article:modified_time" content="2022-04-04T08:41:52.345Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/05.png">
+
+    <link rel="alternate" type="application/atom+xml" href="/atom.xml">
+    <link rel="icon" href="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/favicon.ico" type="image/x-icon">
+
+    
+<link rel="stylesheet" href="/css/common.min.css">
+
+
+
+    
+    
+    
+    
+        <link href="//cdn.jsdelivr.net/npm/lightgallery.js@1.1.3/dist/css/lightgallery.min.css" rel="stylesheet">
+    
+    
+    
+<link rel="stylesheet" href="/css/iconfont.min.css">
+
+    
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+    <body>
+        <header class="header header-fixture">
+    <div class="profile-search-wrap flex sm:block">
+        
+        
+<div class="search flex-1 flex lg:inline-block sm:hidden lg:px-4 lg:mt-2 lg:mb-4 lg:w-full">
+    <form id="search-form" class="my-auto flex-1 lg:border lg:border-solid lg:border-gray-200">
+        <div class="input-group table bg-gray-100 lg:bg-white w-full">
+            <input id="search-input" type="text" placeholder="搜索" class="inline-block w-full bg-gray-100 lg:bg-white">
+            <span class="table-cell">
+                <button name="search tigger button" disabled>
+                    <i class="iconfont icon-search m-2"></i>
+                </button>
+            </span>
+        </div>
+    </form>
+        
+<div id="content-json" data-placeholder="搜索" class="invisible hidden">/content.json</div>
+<script id="search-teamplate" type="text/html" data-path="/content.json">
+    <div>
+        <div class="search-header bg-gray-400">
+            <input id="actual-search-input" model="keyword" ref="input" class="inline-block w-full h-10 px-2 py-1" placeholder="搜索" type="text">
+        </div>
+        <div class="search-result bg-gray-200">
+            {{#each searchPosts}}
+            <a href="/{{ path }}" class="result-item block px-2 pb-3 mb-1 pt-1 hover:bg-indigo-100">
+                <i class="iconfont icon-file"></i>
+                <h1 class="result-title inline font-medium text-lg">{{ title }}</h1>
+                <p class="result-content text-gray-600 text-sm">{{{ text }}}</p>
+            </a>
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+</div>
+
+
+        <button name="menu toogle button" id="menu-toggle-btn" class="block sm:hidden p-3" role="button" aria-expanded="false">
+            <i class="iconfont icon-hamburger"></i>
+        </button>
+    </div>
+    <nav id="menu-nav" class="hidden sm:flex flex-col">
+        
+        
+            <div class="menu-item menu-home" role="menuitem">
+                <a href="/.">
+                    <i class="iconfont icon-home" aria-hidden="true"></i>
+                    <span class="menu-title">首页</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-archives" role="menuitem">
+                <a href="/archives">
+                    <i class="iconfont icon-archive" aria-hidden="true"></i>
+                    <span class="menu-title">归档</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-categories" role="menuitem">
+                <a href="/categories">
+                    <i class="iconfont icon-folder" aria-hidden="true"></i>
+                    <span class="menu-title">分类</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-tags" role="menuitem">
+                <a href="/tags">
+                    <i class="iconfont icon-tag" aria-hidden="true"></i>
+                    <span class="menu-title">标签</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-links" role="menuitem">
+                <a href="/links">
+                    <i class="iconfont icon-friend" aria-hidden="true"></i>
+                    <span class="menu-title">友链</span>
+                </a>
+            </div>
+        
+        
+            <div class="menu-item menu-about" role="menuitem">
+                <a href="/about">
+                    <i class="iconfont icon-cup" aria-hidden="true"></i>
+                    <span class="menu-title">关于</span>
+                </a>
+            </div>
+        
+        
+<div class="social-links flex sm:flex-col lg:hidden mt-5">
+    
+        <span class="social-item text-center">
+            <a target="_blank" rel="noopener" href="https://github.com/zouycc">
+                <i class="iconfont social-icon icon-github"></i>
+                <span class="menu-title hidden lg:inline">menu.github</span>
+            </a>
+        </span>
+    
+        <span class="social-item text-center">
+            <a target="_blank" rel="noopener" href="https://t.me/zouyc">
+                <i class="iconfont social-icon icon-telegram"></i>
+                <span class="menu-title hidden lg:inline">menu.telegram</span>
+            </a>
+        </span>
+    
+        <span class="social-item text-center">
+            <a target="_blank" rel="noopener" href="https://twitter.com/zouycc">
+                <i class="iconfont social-icon icon-twitter"></i>
+                <span class="menu-title hidden lg:inline">menu.twitter</span>
+            </a>
+        </span>
+    
+        <span class="social-item text-center">
+            <a href="/atom.xml">
+                <i class="iconfont social-icon icon-rss"></i>
+                <span class="menu-title hidden lg:inline">menu.rss</span>
+            </a>
+        </span>
+    
+</div>
+
+
+    </nav>
+</header>
+
+        <section class="main-section">
+            
+    <main class="flex-1 px-4 py-14 md:px-5 lg:px-8 lg:py-4 relative min-h-screen">
+    
+
+    <article class="content article article-archives article-type-list" itemscope="">
+        <header class="article-header">
+            
+    
+        <h1 class="article-title text-lg" itemprop="name">
+            MySQL索引和锁
+        </h1>
+    
+
+
+
+            <p class="article-meta mb-3 text-xs">
+                <span class="article-date">
+    <i class="iconfont icon-calendar-check"></i>
+	<a href="/2022/04/04/MySQL%E7%B4%A2%E5%BC%95%E5%92%8C%E9%94%81/" class="article-date">
+	  <time datetime="2022-04-04T07:34:11.000Z" itemprop="datePublished">4月 4</time>
+	</a>
+</span>
+
+                
+    <span class="article-category">
+    <i class="iconfont icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+  </span>
+
+
+                
+    <span class="article-tags">
+    <i class="iconfont icon-tag"></i>
+    <a class="article-tag-none-link" href="/tags/MySQL/" rel="tag">MySQL</a>
+  </span>
+
+
+                <span class="_partial/post-comment"><i class="icon icon-comment"></i>
+                    <a href="/2022/04/04/MySQL%E7%B4%A2%E5%BC%95%E5%92%8C%E9%94%81/#comments" class="article-comment-link">
+                        评论
+                    </a>
+                </span>
+                
+    
+        <span class="post-wordcount" itemprop="wordCount">字数统计: 3.6k(字)</span>
+    
+    
+        <span class="post-readcount" itemprop="timeRequired">阅读时长: 12(分)</span>
+    
+
+
+            </p>
+        </header>
+        <div class="marked-body article-body">
+            <h2 id="索引">索引</h2>
+<p>在表数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式指向数据， 这样就可以在这些数据结构上实现高级查找算法，这种数据结构就是索引。</p>
+<ul>
+<li>功能分类
+<ul>
+<li>普通索引： 最基本的索引，它没有任何限制。</li>
+<li>唯一索引：索引列的值必须唯一，但允许有空值。如果是组合索引，则列值组合必须唯一。</li>
+<li>主键索引：一种特殊的唯一索引，不允许有空值。一般在建表时同时创建主键索引。</li>
+<li>组合索引：顾名思义，就是将单列索引进行组合。</li>
+<li>外键索引：只有InnoDB引擎支持外键索引，用来保证数据的一致性、完整性和实现级联操作。</li>
+<li>全文索引：快速匹配全部文档的方式。InnoDB引擎5.6版本后才支持全文索引。MEMORY引擎不支持。</li>
+</ul>
+</li>
+<li>结构分类
+<ul>
+<li>B+Tree索引 ：MySQL使用最频繁的一个索引数据结构，是InnoDB和MyISAM存储引擎默认的索引类型。</li>
+<li>Hash索引 : MySQL中Memory存储引擎默认支持的索引类型。</li>
+</ul>
+</li>
+</ul>
+<h3 id="索引的操作">索引的操作</h3>
+<p>创建索引：</p>
+<p>如果一个表中有一列是主键，那么就会默认为其创建主键索引</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- 标准语法</span><br><span class="line">CREATE [UNIQUE|FULLTEXT] INDEX 索引名称</span><br><span class="line">[USING 索引类型]  -- 默认是B+TREE</span><br><span class="line">ON 表名(列名...);</span><br><span class="line"></span><br><span class="line">-- 为student表中姓名列创建一个普通索引</span><br><span class="line">CREATE INDEX idx_name ON student(NAME);</span><br><span class="line"></span><br><span class="line">-- 为student表中年龄列创建一个唯一索引</span><br><span class="line">CREATE UNIQUE INDEX idx_age ON student(age);</span><br></pre></td></tr></table></figure>
+<p>查看索引：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 标准语法</span><br><span class="line">SHOW INDEX FROM 表名;</span><br><span class="line"></span><br><span class="line">-- 查看student表中的索引</span><br><span class="line">SHOW INDEX FROM student;</span><br></pre></td></tr></table></figure>
+<p>添加索引：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">-- 普通索引</span><br><span class="line">ALTER TABLE 表名 ADD INDEX 索引名称(列名);</span><br><span class="line"></span><br><span class="line">-- 组合索引</span><br><span class="line">ALTER TABLE 表名 ADD INDEX 索引名称(列名1,列名2,...);</span><br><span class="line"></span><br><span class="line">-- 主键索引</span><br><span class="line">ALTER TABLE 表名 ADD PRIMARY KEY(主键列名); </span><br><span class="line"></span><br><span class="line">-- 外键索引(添加外键约束，就是外键索引)</span><br><span class="line">ALTER TABLE 表名 ADD CONSTRAINT 外键名 FOREIGN KEY (本表外键列名) REFERENCES 主表名(主键列名);</span><br><span class="line"></span><br><span class="line">-- 唯一索引</span><br><span class="line">ALTER TABLE 表名 ADD UNIQUE 索引名称(列名);</span><br><span class="line"></span><br><span class="line">-- 全文索引(mysql只支持文本类型)</span><br><span class="line">ALTER TABLE 表名 ADD FULLTEXT 索引名称(列名);</span><br></pre></td></tr></table></figure>
+<p>删除索引：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 标准语法</span><br><span class="line">DROP INDEX 索引名称 ON 表名;</span><br><span class="line"></span><br><span class="line">-- 删除student表中的idx_score索引</span><br><span class="line">DROP INDEX idx_score ON student;</span><br></pre></td></tr></table></figure>
+<h3 id="索引的实现原则">索引的实现原则</h3>
+<ul>
+<li>索引是在MySQL的存储引擎中实现的，所以每种存储引擎的索引不一定完全相同，也不是所有的引擎支持所有的索引类型。这里我们主要介绍InnoDB引擎的实现的<strong>B+Tree索引</strong>。</li>
+<li>B+Tree是一种树型数据结构，是B-Tree的变种。通常使用在数据库和操作系统中的文件系统，特点是能够保持数据稳定有序。我们逐步的来了解一下。</li>
+</ul>
+<h4 id="磁盘存储">磁盘存储</h4>
+<ul>
+<li>系统从磁盘读取数据到内存时是以磁盘块（block）为基本单位的</li>
+<li>位于同一个磁盘块中的数据会被一次性读取出来，而不是需要什么取什么。</li>
+<li>InnoDB存储引擎中有页（Page）的概念，页是其磁盘管理的最小单位。InnoDB存储引擎中默认每个页的大小为16KB。</li>
+<li>InnoDB引擎将若干个地址连接磁盘块，以此来达到页的大小16KB，在查询数据时如果一个页中的每条数据都能有助于定位数据记录的位置，这将会减少磁盘I/O次数，提高查询效率。</li>
+</ul>
+<h4 id="BTree">BTree</h4>
+<ul>
+<li>
+<p>BTree结构的数据可以让系统高效的找到数据所在的磁盘块。为了描述BTree，首先定义一条记录为一个二元组[key, data] ，key为记录的键值，对应表中的主键值，data为一行记录中除主键外的数据。对于不同的记录，key值互不相同。BTree中的每个节点根据实际情况可以包含大量的关键字信息和分支，如下图所示为一个3阶的BTree：</p>
+<p><img src="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/05.png" alt="05"></p>
+</li>
+<li>
+<p>根据图中结构显示，每个节点占用一个盘块的磁盘空间，一个节点上有两个升序排序的关键字和三个指向子树根节点的指针，指针存储的是子节点所在磁盘块的地址。两个关键词划分成的三个范围域对应三个指针指向的子树的数据的范围域。以根节点为例，关键字为17和35，P1指针指向的子树的数据范围为小于17，P2指针指向的子树的数据范围为17~35，P3指针指向的子树的数据范围为大于35。</p>
+</li>
+</ul>
+<p>查找顺序：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">模拟查找15的过程 : </span><br><span class="line"></span><br><span class="line">1.根节点找到磁盘块1，读入内存。【磁盘I/O操作第1次】</span><br><span class="line">	比较关键字15在区间（&lt;17），找到磁盘块1的指针P1。</span><br><span class="line">2.P1指针找到磁盘块2，读入内存。【磁盘I/O操作第2次】</span><br><span class="line">	比较关键字15在区间（&gt;12），找到磁盘块2的指针P3。</span><br><span class="line">3.P3指针找到磁盘块7，读入内存。【磁盘I/O操作第3次】</span><br><span class="line">	在磁盘块7中找到关键字15。</span><br></pre></td></tr></table></figure>
+<h4 id="B-Tree">B+Tree</h4>
+<ul>
+<li>B+Tree是在BTree基础上的一种优化，使其更适合实现外存储索引结构，InnoDB存储引擎就是用B+Tree实现其索引结构。</li>
+<li>从上一节中的BTree结构图中可以看到每个节点中不仅包含数据的key值，还有data值。而每一个页的存储空间是有限的，如果data数据较大时将会导致每个节点（即一个页）能存储的key的数量很小，当存储的数据量很大时同样会导致B-Tree的深度较大，增大查询时的磁盘I/O次数，进而影响查询效率。在B+Tree中，所有数据记录节点都是按照键值大小顺序存放在同一层的叶子节点上，而非叶子节点上只存储key值信息，这样可以大大加大每个节点存储的key值数量，降低B+Tree的高度。</li>
+<li>B+Tree相对于BTree区别：
+<ul>
+<li>非叶子节点只存储键值信息。</li>
+<li>所有叶子节点之间都有一个连接指针。</li>
+<li>数据记录都存放在叶子节点中。</li>
+</ul>
+</li>
+<li>将上一节中的BTree优化，由于B+Tree的非叶子节点只存储键值信息，假设每个磁盘块能存储4个键值及指针信息，则变成B+Tree后其结构如下图所示：</li>
+</ul>
+<p><img src="https://picgo-images1.oss-cn-beijing.aliyuncs.com/myblog/img/06.png" alt="06"></p>
+<p>通常在B+Tree上有两个头指针，一个指向根节点，另一个指向关键字最小的叶子节点，而且所有叶子节点（即数据节点）之间是一种链式环结构。因此可以对B+Tree进行两种查找运算：</p>
+<ul>
+<li>【有范围】对于主键的范围查找和分页查找</li>
+<li>【有顺序】从根节点开始，进行随机查找</li>
+</ul>
+<p>实际情况中每个节点可能不能填充满，因此在数据库中，B+Tree的高度一般都在2~4层。MySQL的InnoDB存储引擎在设计时是将根节点常驻内存的，也就是说查找某一键值的行记录时最多只需要1~3次磁盘I/O操作。</p>
+<h3 id="总结">总结</h3>
+<p>索引的设计可以遵循一些已有的原则，创建索引的时候请尽量考虑符合这些原则，便于提升索引的使用效率，更高效的使用索引。</p>
+<ul>
+<li>对查询频次较高，且数据量比较大的表建立索引。</li>
+<li>使用唯一索引，区分度越高，使用索引的效率越高。</li>
+<li>索引字段的选择，最佳候选列应当从where子句的条件中提取，如果where子句中的组合比较多，那么应当挑选最常用、过滤效果最好的列的组合。</li>
+<li>使用短索引，索引创建之后也是使用硬盘来存储的，因此提升索引访问的I/O效率，也可以提升总体的访问效率。假如构成索引的字段总长度比较短，那么在给定大小的存储块内可以存储更多的索引值，相应的可以有效的提升MySQL访问索引的I/O效率。</li>
+<li>索引可以有效的提升查询数据的效率，但索引数量不是多多益善，索引越多，维护索引的代价自然也就水涨船高。对于插入、更新、删除等DML操作比较频繁的表来说，索引过多，会引入相当高的维护代价，降低DML操作的效率，增加相应操作的时间消耗。另外索引过多的话，MySQL也会犯选择困难病，虽然最终仍然会找到一个可用的索引，但无疑提高了选择的代价。</li>
+</ul>
+<h2 id="锁">锁</h2>
+<p>当一个线程真正在操作数据的时候，其他线程只能等待。当一个线程执行完毕后，释放锁。其他线程才能进行操作！</p>
+<h3 id="锁的分类">锁的分类</h3>
+<p>按操作分类：</p>
+<ul>
+<li>共享锁：也叫读锁。针对同一份数据，多个事务读取操作可以同时加锁而不互相影响 ，但是不能修改数据记录。</li>
+<li>排他锁：也叫写锁。加锁的数据，不能被其他事务加锁查询或修改</li>
+</ul>
+<p>按粒度分类：</p>
+<ul>
+<li>表级锁：操作时，会锁定整个表。开销小，加锁快；不会出现死锁；锁定粒度大，发生锁冲突概率高，并发度最低。偏向于MyISAM存储引擎！</li>
+<li>行级锁：操作时，会锁定当前操作行。开销大，加锁慢；会出现死锁；锁定粒度小，发生锁冲突的概率低，并发度高。偏向于InnoDB存储引擎！</li>
+<li>页级锁：锁的粒度、发生冲突的概率和加锁的开销介于表锁和行锁之间，会出现死锁，并发性能一般。</li>
+</ul>
+<p>按使用方式分类：</p>
+<ul>
+<li>悲观锁：每次查询数据时都认为别人会修改，很悲观，所以查询时加锁。</li>
+<li>乐观锁：每次查询数据时都认为别人不会修改，很乐观，但是更新时会判断一下在此期间别人有没有去更新这个数据</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>存储引擎</th>
+<th>表级锁</th>
+<th>行级锁</th>
+<th>页级锁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MyISAM</td>
+<td>支持</td>
+<td>不支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>InnoDB</td>
+<td>支持</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>MEMORY</td>
+<td>支持</td>
+<td>不支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>BDB</td>
+<td>支持</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<h3 id="演示InnoDB锁">演示InnoDB锁</h3>
+<p>共享锁：数据可以被多个事务查询，但是不能修改</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-- 标准语法</span><br><span class="line">SELECT语句 LOCK IN SHARE MODE;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-- 开启事务</span><br><span class="line">START TRANSACTION;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录。加入共享锁</span><br><span class="line">SELECT * FROM student WHERE id=1 LOCK IN SHARE MODE;</span><br><span class="line"></span><br><span class="line">-- 查询分数为99分的数据记录。加入共享锁</span><br><span class="line">SELECT * FROM student WHERE score=99 LOCK IN SHARE MODE;</span><br><span class="line"></span><br><span class="line">-- 提交事务</span><br><span class="line">COMMIT;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">-- 开启事务</span><br><span class="line">START TRANSACTION;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录(普通查询，可以查询)</span><br><span class="line">SELECT * FROM student WHERE id=1;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录，并加入共享锁(可以查询。共享锁和共享锁兼容)</span><br><span class="line">SELECT * FROM student WHERE id=1 LOCK IN SHARE MODE;</span><br><span class="line"></span><br><span class="line">-- 修改id为1的姓名为张三三(不能修改，会出现锁的情况。只有窗口1提交事务后，才能修改成功)</span><br><span class="line">UPDATE student SET NAME=&#x27;张三三&#x27; WHERE id = 1;</span><br><span class="line"></span><br><span class="line">-- 修改id为2的姓名为李四四(修改成功，InnoDB引擎默认是行锁)</span><br><span class="line">UPDATE student SET NAME=&#x27;李四四&#x27; WHERE id = 2;</span><br><span class="line"></span><br><span class="line">-- 修改id为3的姓名为王五五(注意：InnoDB引擎如果不采用带索引的列。则会提升为表锁)</span><br><span class="line">UPDATE student SET NAME=&#x27;王五五&#x27; WHERE id = 3;</span><br><span class="line"></span><br><span class="line">-- 提交事务</span><br><span class="line">COMMIT;</span><br></pre></td></tr></table></figure>
+<p>排他锁：加锁的数据，不能被其他事务加锁查询或修改</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-- 标准语法</span><br><span class="line">SELECT语句 FOR UPDATE;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-- 开启事务</span><br><span class="line">START TRANSACTION;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录，并加入排他锁</span><br><span class="line">SELECT * FROM student WHERE id=1 FOR UPDATE;</span><br><span class="line"></span><br><span class="line">-- 提交事务</span><br><span class="line">COMMIT;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">-- 开启事务</span><br><span class="line">START TRANSACTION;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录(普通查询没问题)</span><br><span class="line">SELECT * FROM student WHERE id=1;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录，并加入共享锁(不能查询。因为排他锁不能和其他锁共存)</span><br><span class="line">SELECT * FROM student WHERE id=1 LOCK IN SHARE MODE;</span><br><span class="line"></span><br><span class="line">-- 查询id为1的数据记录，并加入排他锁(不能查询。因为排他锁不能和其他锁共存)</span><br><span class="line">SELECT * FROM student WHERE id=1 FOR UPDATE;</span><br><span class="line"></span><br><span class="line">-- 修改id为1的姓名为张三(不能修改，会出现锁的情况。只有窗口1提交事务后，才能修改成功)</span><br><span class="line">UPDATE student SET NAME=&#x27;张三&#x27; WHERE id=1;</span><br><span class="line"></span><br><span class="line">-- 提交事务</span><br><span class="line">COMMIT;</span><br></pre></td></tr></table></figure>
+<h3 id="悲观锁和乐观锁使用前提：">悲观锁和乐观锁使用前提：</h3>
+<ul>
+<li>对于读的操作远多于写的操作的时候，这时候一个更新操作加锁会阻塞所有的读取操作，降低了吞吐量。最后还要释放锁，锁是需要一些开销的，这时候可以选择乐观锁。</li>
+<li>如果是读写比例差距不是非常大或者系统没有响应不及时，吞吐量瓶颈的问题，那就不要去使用乐观锁，它增加了复杂度，也带来了业务额外的风险。这时候可以选择悲观锁。</li>
+</ul>
+<h3 id="总结-2">总结</h3>
+<ul>
+<li>
+<p>表锁和行锁</p>
+<ul>
+<li>行锁：锁的粒度更细，加行锁的性能损耗较大。并发处理能力较高。InnoDB引擎默认支持！</li>
+<li>表锁：锁的粒度较粗，加表锁的性能损耗较小。并发处理能力较低。InnoDB、MyISAM引擎支持！</li>
+</ul>
+</li>
+<li>
+<p>InnoDB锁优化建议</p>
+<ul>
+<li>
+<p>尽量通过带索引的列来完成数据查询，从而避免InnoDB无法加行锁而升级为表锁。</p>
+</li>
+<li>
+<p>合理设计索引，索引要尽可能准确，尽可能的缩小锁定范围，避免造成不必要的锁定。</p>
+</li>
+<li>
+<p>尽可能减少基于范围的数据检索过滤条件。</p>
+</li>
+<li>
+<p>尽量控制事务的大小，减少锁定的资源量和锁定时间长度。</p>
+</li>
+<li>
+<p>在同一个事务中，尽可能做到一次锁定所需要的所有资源，减少死锁产生概率。</p>
+</li>
+<li>
+<p>对于非常容易产生死锁的业务部分，可以尝试使用升级锁定颗粒度，通过表级锁定来减少死锁的产生。</p>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+        
+<blockquote class="copyright">
+    <p><strong>本文链接 : </strong><a class="permalink" href="http://zouyc.cn/2022/04/04/MySQL%E7%B4%A2%E5%BC%95%E5%92%8C%E9%94%81/">http://zouyc.cn/2022/04/04/MySQL索引和锁/</a></p>
+    <p><strong>本博客所有文章除特别声明外，均采用 CC BY 4.0 CN协议 许可协议。转载请注明出处！</strong></p>
+</blockquote>
+
+
+    </article>
+    
+    <section id="comments">
+        
+            <div id="vcomments"></div>
+        
+    </section>
+
+
+    
+
+</main>
+
+
+<aside style="" id="sidebar" class="aside aside-fixture">
+    <div class="toc-sidebar">
+        <nav id="toc" class="article-toc">
+            <h3 class="toc-title">文章目录</h3>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-number">1.1.</span> <span class="toc-text">索引的操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E5%88%99"><span class="toc-number">1.2.</span> <span class="toc-text">索引的实现原则</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%AD%98%E5%82%A8"><span class="toc-number">1.2.1.</span> <span class="toc-text">磁盘存储</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BTree"><span class="toc-number">1.2.2.</span> <span class="toc-text">BTree</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree"><span class="toc-number">1.2.3.</span> <span class="toc-text">B+Tree</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.3.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%81"><span class="toc-number">2.</span> <span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">2.1.</span> <span class="toc-text">锁的分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%94%E7%A4%BAInnoDB%E9%94%81"><span class="toc-number">2.2.</span> <span class="toc-text">演示InnoDB锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81%E4%BD%BF%E7%94%A8%E5%89%8D%E6%8F%90%EF%BC%9A"><span class="toc-number">2.3.</span> <span class="toc-text">悲观锁和乐观锁使用前提：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">2.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+        </nav>
+    </div>
+</aside>
+
+
+
+
+
+        </section>
+        <footer class="hidden lg:block fixed bottom-0 left-0 sm:w-1/12 lg:w-1/6 bg-gray-100 z-40">
+    
+    <div class="footer-social-links">
+        
+            <a target="_blank" rel="noopener" href="https://github.com/zouycc">
+                <i class="iconfont icon-github"></i>
+            </a>
+        
+            <a target="_blank" rel="noopener" href="https://t.me/zouyc">
+                <i class="iconfont icon-telegram"></i>
+            </a>
+        
+            <a target="_blank" rel="noopener" href="https://twitter.com/zouycc">
+                <i class="iconfont icon-twitter"></i>
+            </a>
+        
+            <a href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+            </a>
+        
+    </div>
+    
+    
+</footer>
+
+        <div id="mask" class="hidden mask fixed inset-0 bg-gray-900 opacity-75 z-40"></div>
+        <div id="search-view-container" class="hidden shadow-xl"></div>
+        
+<script src="/js/dom-event.min.js"></script>
+
+
+
+<script src="/js/local-search.min.js"></script>
+
+
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/valine"></script>
+<script type="text/javascript">
+var GUEST = ['nick', 'mail', 'link'];
+var meta = 'nick,mail,link';
+meta = meta.split(',').filter(function(item) {
+  return GUEST.indexOf(item) > -1;
+});
+new Valine({
+  el: '#vcomments',
+  verify: false,
+  notify: false,
+  appId: '6LSSFCD2zaCRzgT8udCAT3uk-gzGzoHsz',
+  appKey: 'jzEmb9iYxpy3j79AIINlLenC',
+  placeholder: 'Just go go',
+  avatar: 'mm',
+  meta: meta,
+  pageSize: '10' || 10,
+  visitor: false
+});
+</script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/lightgallery.js@1.1.3/dist/js/lightgallery.min.js"></script>
+    
+<script src="/js/light-gallery.min.js"></script>
+
+
+
+
+
+
+    </body>
+</html>
